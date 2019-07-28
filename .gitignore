@@ -1,1 +1,8 @@
+#System
 .DS_Store
+
+# Vendor
+node_modules
+
+# JSON
+package-lock.json

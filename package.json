@@ -1,0 +1,14 @@
+{
+  "name": "obs-websocket",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "obs-websocket-js": "^3.1.0"
+  },
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
