@@ -1,6 +1,4 @@
-const React = require('react');
-const ReactDOM = require('react-dom');
-
+// Example scripts
 const obs = new OBSWebSocket();
 
 obs.connect({ address: 'localhost:4444', password: '1234567890' }).then(() => {
