@@ -1,26 +1,27 @@
 
 const path = require('path')
 const { openStreamDeck } = require('elgato-stream-deck')
-const OBSWebSocket = require('obs-websocket-js');
+const OBSWebSocket = require('obs-websocket-js')
 const sharp = require('sharp')
-var Jimp = require("jimp");
-var fileName = 'test.png';
-var fileNameOut = 'out.png';
-const fs = require('fs');
-const {number} = require("sharp/lib/is");
+var Jimp = require('jimp')
+var fileName = 'test.png'
+var fileNameOut = 'out.png'
+const fs = require('fs')
+const {number} = require('sharp/lib/is')
+const { setServers } = require('dns')
 const myStreamDeck = openStreamDeck()
-const obs = new OBSWebSocket();
-obs.connect({ address: 'localhost:4444', password: '12345678' });
+const obs = new OBSWebSocket()
+obs.connect({ address: 'localhost:4444', password: '12345678' })
 var rec = 0
 var myevent
 var currentevent
 
 
 fs.readFile('event.json', (err, data) => {
-    if (err) throw err;
-    myevent = JSON.parse(data);
+    if (err) throw err
+    myevent = JSON.parse(data)
     currentevent = 0
-});
+})
 
 
 obs.on( 'Heartbeat', data => {
@@ -33,170 +34,61 @@ function sleep(ms){
     })
 }
 
+// Set Button with Image on Stream Deck
+function SetStreamDeckButton(ButtonNo, ButtonImg) {
+    sharp(path.resolve(__dirname, ButtonImg))
+        .flatten() // Eliminate alpha channel, if any.
+        .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
+        .raw() // Give us uncompressed RGB.
+        .toBuffer()
+        .then(buffer => {
+            myStreamDeck.fillImage(ButtonNo, buffer)
+        })
+        .catch(err => {
+            console.error(err)
+        })
+}
 
 function clean_buttons() {
-
-    sharp(path.resolve(__dirname, 'folie-speaker.png'))
-        .flatten() // Eliminate alpha channel, if any.
-        .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
-        .raw() // Give us uncompressed RGB.
-        .toBuffer()
-        .then(buffer => {
-            myStreamDeck.fillImage(6, buffer)
-        })
-        .catch(err => {
-            console.error(err)
-        })
-    sharp(path.resolve(__dirname, 'speaker-folie.png'))
-        .flatten() // Eliminate alpha channel, if any.
-        .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
-        .raw() // Give us uncompressed RGB.
-        .toBuffer()
-        .then(buffer => {
-            myStreamDeck.fillImage(7, buffer)
-        })
-        .catch(err => {
-            console.error(err)
-        })
-
-    sharp(path.resolve(__dirname, 'titel.png'))
-        .flatten() // Eliminate alpha channel, if any.
-        .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
-        .raw() // Give us uncompressed RGB.
-        .toBuffer()
-        .then(buffer => {
-            myStreamDeck.fillImage(10, buffer)
-        })
-        .catch(err => {
-            console.error(err)
-        })
-    sharp(path.resolve(__dirname, 'folie.png'))
-        .flatten() // Eliminate alpha channel, if any.
-        .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
-        .raw() // Give us uncompressed RGB.
-        .toBuffer()
-        .then(buffer => {
-            myStreamDeck.fillImage(11, buffer)
-        })
-        .catch(err => {
-            console.error(err)
-        })
-    sharp(path.resolve(__dirname, 'speaker.png'))
-        .flatten() // Eliminate alpha channel, if any.
-        .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
-        .raw() // Give us uncompressed RGB.
-        .toBuffer()
-        .then(buffer => {
-            myStreamDeck.fillImage(12, buffer)
-        })
-        .catch(err => {
-            console.error(err)
-        })
-
+    SetStreamDeckButton(6, 'folie-speaker.png')
+    SetStreamDeckButton(7, 'speaker-folie.png')
+    SetStreamDeckButton(10, 'titel.png')
+    SetStreamDeckButton(11, 'folie.png')
+    SetStreamDeckButton(12, 'speaker.png')
 }
 
 
-obs.on( 'SwitchScenes', data => {
-    //console.log(data['scene-name']);
+obs.on('SwitchScenes', data => {
+    //console.log(data['scene-name'])
     clean_buttons()
     switch ( data['scene-name'] ) {
         case 'Speaker':
-            sharp(path.resolve(__dirname, 'speaker-active.png'))
-                .flatten() // Eliminate alpha channel, if any.
-                .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
-                .raw() // Give us uncompressed RGB.
-                .toBuffer()
-                .then(buffer => {
-                    myStreamDeck.fillImage(12, buffer)
-                })
-                .catch(err => {
-                    console.error(err)
-                })
-            break;
+            SetStreamDeckButton(12, 'speaker-active.png')
+            break
         case 'Titel':
-            sharp(path.resolve(__dirname, 'titel-active.png'))
-                .flatten() // Eliminate alpha channel, if any.
-                .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
-                .raw() // Give us uncompressed RGB.
-                .toBuffer()
-                .then(buffer => {
-                    myStreamDeck.fillImage(10, buffer)
-                })
-                .catch(err => {
-                    console.error(err)
-                })
-            break;
+            SetStreamDeckButton(10, 'titel-active.png')
+            break
         case 'Folien/Speaker':
-            sharp(path.resolve(__dirname, 'folie-speaker-active.png'))
-                .flatten() // Eliminate alpha channel, if any.
-                .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
-                .raw() // Give us uncompressed RGB.
-                .toBuffer()
-                .then(buffer => {
-                    myStreamDeck.fillImage(6, buffer)
-                })
-                .catch(err => {
-                    console.error(err)
-                })
-            break;
+            SetStreamDeckButton(6, 'folie-speaker-active.png')
+            break
         case 'Speaker/Folien':
-            sharp(path.resolve(__dirname, 'speaker-folie-active.png'))
-                .flatten() // Eliminate alpha channel, if any.
-                .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
-                .raw() // Give us uncompressed RGB.
-                .toBuffer()
-                .then(buffer => {
-                    myStreamDeck.fillImage(7, buffer)
-                })
-                .catch(err => {
-                    console.error(err)
-                })
-            break;
+            SetStreamDeckButton(7, 'speaker-folie-active.png')
+            break
         case 'Folien':
-            sharp(path.resolve(__dirname, 'folie-active.png'))
-                .flatten() // Eliminate alpha channel, if any.
-                .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
-                .raw() // Give us uncompressed RGB.
-                .toBuffer()
-                .then(buffer => {
-                    myStreamDeck.fillImage(11, buffer)
-                })
-                .catch(err => {
-                    console.error(err)
-                })
-            break;
+            SetStreamDeckButton(11, 'folie-active.png')
+            break
     }
-});
+})
 
 obs.on('RecordingStopped', err => {
-    sharp(path.resolve(__dirname, 'rec-off.png'))
-        .flatten() // Eliminate alpha channel, if any.
-        .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
-        .raw() // Give us uncompressed RGB.
-        .toBuffer()
-        .then(buffer => {
-            myStreamDeck.fillImage(14, buffer)
-        })
-        .catch(err => {
-            console.error(err)
-        })
+    SetStreamDeckButton(14, 'rec-off.png')
     rec = 0
-});
+})
 
 obs.on('RecordingStarted', err => {
-    sharp(path.resolve(__dirname, 'rec-on.png'))
-        .flatten() // Eliminate alpha channel, if any.
-        .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
-        .raw() // Give us uncompressed RGB.
-        .toBuffer()
-        .then(buffer => {
-            myStreamDeck.fillImage(14, buffer)
-        })
-        .catch(err => {
-            console.error(err)
-        })
+    SetStreamDeckButton(14, 'rec-on.png')
     rec = 1
-});
+})
 
 myStreamDeck.on('down', keyIndex => {
     console.log('key %d down', keyIndex)
@@ -206,64 +98,34 @@ myStreamDeck.on('down', keyIndex => {
             currentevent--
         }
         if (currentevent == 0 ) {
-            sharp(path.resolve(__dirname, 'vorheriger-off.png'))
-                .flatten() // Eliminate alpha channel, if any.
-                .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
-                .raw() // Give us uncompressed RGB.
-                .toBuffer()
-                .then(buffer => {
-                    myStreamDeck.fillImage(0, buffer)
-                })
-                .catch(err => {
-                    console.error(err)
-                })
+            SetStreamDeckButton(0, 'vorheriger-off.png')
         } else {
-            sharp(path.resolve(__dirname, 'vorheriger.png'))
-                .flatten() // Eliminate alpha channel, if any.
-                .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
-                .raw() // Give us uncompressed RGB.
-                .toBuffer()
-                .then(buffer => {
-                    myStreamDeck.fillImage(0, buffer)
-                })
-                .catch(err => {
-                    console.error(err)
-                })
+            SetStreamDeckButton(0, 'vorheriger.png')
         }
-        sharp(path.resolve(__dirname, 'naechster.png'))
-            .flatten() // Eliminate alpha channel, if any.
-            .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
-            .raw() // Give us uncompressed RGB.
-            .toBuffer()
-            .then(buffer => {
-                myStreamDeck.fillImage(1, buffer)
-            })
-            .catch(err => {
-                console.error(err)
-            })
+        SetStreamDeckButton(1, 'naechster.png')
 
         Jimp.read(fileName)
             .then(function (image) {
-                loadedImage = image;
-                return Jimp.loadFont(Jimp.FONT_SANS_16_BLACK);
+                loadedImage = image
+                return Jimp.loadFont(Jimp.FONT_SANS_16_BLACK)
             })
             .then(function (font) {
                 loadedImage.print(font, 10, 10, myevent[currentevent].name)
                 loadedImage.print(font, 50, 50, myevent[currentevent].session)
-                    .write(fileNameOut);
+                .write(fileNameOut)
             })
             .catch(function (err) {
-                console.error(err);
-            });
+                console.error(err)
+            })
 
         obs.send('SetSourceSettings', {
             'sourceName': "Name",
-            'sourceSettings': { 'text' : myevent[currentevent].name  }
-        });
+            'sourceSettings': { 'text' : myevent[currentevent].name }
+        })
         obs.send('SetSourceSettings', {
             'sourceName': "Session",
-            'sourceSettings': { 'text' : myevent[currentevent].session  }
-        });
+            'sourceSettings': { 'text' : myevent[currentevent].session }
+        })
 
     }
     if (keyIndex == 1 ) {
@@ -271,64 +133,34 @@ myStreamDeck.on('down', keyIndex => {
             currentevent++
         }
         if (currentevent == ( myevent.length -1) ) {
-            sharp(path.resolve(__dirname, 'naechster-off.png'))
-                .flatten() // Eliminate alpha channel, if any.
-                .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
-                .raw() // Give us uncompressed RGB.
-                .toBuffer()
-                .then(buffer => {
-                    myStreamDeck.fillImage(1, buffer)
-                })
-                .catch(err => {
-                    console.error(err)
-                })
+            SetStreamDeckButton(1, 'naechster-off.png')
         } else {
-            sharp(path.resolve(__dirname, 'naechster.png'))
-                .flatten() // Eliminate alpha channel, if any.
-                .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
-                .raw() // Give us uncompressed RGB.
-                .toBuffer()
-                .then(buffer => {
-                    myStreamDeck.fillImage(1, buffer)
-                })
-                .catch(err => {
-                    console.error(err)
-                })
+            SetStreamDeckButton(1, 'naechster.png')
         }
-        sharp(path.resolve(__dirname, 'vorheriger.png'))
-            .flatten() // Eliminate alpha channel, if any.
-            .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
-            .raw() // Give us uncompressed RGB.
-            .toBuffer()
-            .then(buffer => {
-                myStreamDeck.fillImage(0, buffer)
-            })
-            .catch(err => {
-                console.error(err)
-            })
+        SetStreamDeckButton(0, 'vorheriger.png')
 
         Jimp.read(fileName)
             .then(function (image) {
-                loadedImage = image;
-                return Jimp.loadFont(Jimp.FONT_SANS_16_BLACK);
+                loadedImage = image
+                return Jimp.loadFont(Jimp.FONT_SANS_16_BLACK)
             })
             .then(function (font) {
                 loadedImage.print(font, 10, 10, myevent[currentevent].name)
                 loadedImage.print(font, 50, 50, myevent[currentevent].session)
-                    .write(fileNameOut);
+                .write(fileNameOut)
             })
             .catch(function (err) {
-                console.error(err);
-            });
+                console.error(err)
+            })
 
         obs.send('SetSourceSettings', {
             'sourceName': "Name",
-            'sourceSettings': { 'text' : myevent[currentevent].name  }
-        });
+            'sourceSettings': { 'text' : myevent[currentevent].name }
+        })
         obs.send('SetSourceSettings', {
             'sourceName': "Session",
-            'sourceSettings': { 'text' : myevent[currentevent].session  }
-        });
+            'sourceSettings': { 'text' : myevent[currentevent].session }
+        })
 
     }
 
@@ -336,121 +168,49 @@ myStreamDeck.on('down', keyIndex => {
     if (keyIndex == 6 ) {
         obs.send('SetCurrentScene', {
             'scene-name': "Folien/Speaker"
-        });
-
+        })
         clean_buttons()
-        sharp(path.resolve(__dirname, 'folie-speaker-active.png'))
-            .flatten() // Eliminate alpha channel, if any.
-            .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
-            .raw() // Give us uncompressed RGB.
-            .toBuffer()
-            .then(buffer => {
-                myStreamDeck.fillImage(6, buffer)
-            })
-            .catch(err => {
-                console.error(err)
-            })
+        SetStreamDeckButton(6, 'folie-speaker-active.png')
     }
 
     if (keyIndex == 7 ) {
         obs.send('SetCurrentScene', {
             'scene-name': "Speaker/Folien"
-        });
+        })
         clean_buttons()
-        sharp(path.resolve(__dirname, 'speaker-folie-active.png'))
-            .flatten() // Eliminate alpha channel, if any.
-            .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
-            .raw() // Give us uncompressed RGB.
-            .toBuffer()
-            .then(buffer => {
-                myStreamDeck.fillImage(7, buffer)
-            })
-            .catch(err => {
-                console.error(err)
-            })
+        SetStreamDeckButton(7, 'speaker-folie-active.png')
     }
 
     if (keyIndex == 10 ) {
         obs.send('SetCurrentScene', {
             'scene-name': "Titel"
-        });
+        })
         clean_buttons()
-        sharp(path.resolve(__dirname, 'titel-active.png'))
-            .flatten() // Eliminate alpha channel, if any.
-            .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
-            .raw() // Give us uncompressed RGB.
-            .toBuffer()
-            .then(buffer => {
-                myStreamDeck.fillImage(10, buffer)
-            })
-            .catch(err => {
-                console.error(err)
-            })
+        SetStreamDeckButton(10, 'titel-active.png')
     }
     if (keyIndex == 11 ) {
         obs.send('SetCurrentScene', {
             'scene-name': "Folien"
-        });
+        })
         clean_buttons()
-        sharp(path.resolve(__dirname, 'folie-active.png'))
-            .flatten() // Eliminate alpha channel, if any.
-            .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
-            .raw() // Give us uncompressed RGB.
-            .toBuffer()
-            .then(buffer => {
-                myStreamDeck.fillImage(11, buffer)
-            })
-            .catch(err => {
-                console.error(err)
-            })
+        SetStreamDeckButton(11, 'folie-active.png')
     }
 
     if (keyIndex == 12 ) {
         obs.send('SetCurrentScene', {
             'scene-name': "Speaker"
-        });
+        })
         clean_buttons()
-        sharp(path.resolve(__dirname, 'speaker-active.png'))
-            .flatten() // Eliminate alpha channel, if any.
-            .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
-            .raw() // Give us uncompressed RGB.
-            .toBuffer()
-            .then(buffer => {
-                myStreamDeck.fillImage(12, buffer)
-            })
-            .catch(err => {
-                console.error(err)
-            })
+        SetStreamDeckButton(12, 'speaker-active.png')
     }
-
 
     if ( keyIndex == 14 ) {
         if ( rec == 0 ) {
-            sharp(path.resolve(__dirname, 'rec-on.png'))
-                .flatten() // Eliminate alpha channel, if any.
-                .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
-                .raw() // Give us uncompressed RGB.
-                .toBuffer()
-                .then(buffer => {
-                    myStreamDeck.fillImage(14, buffer)
-                })
-                .catch(err => {
-                    console.error(err)
-                })
-            obs.send('StartRecording');
+            SetStreamDeckButton(14, 'rec-on.png')
+            obs.send('StartRecording')
         } else {
-            sharp(path.resolve(__dirname, 'rec-off.png'))
-                .flatten() // Eliminate alpha channel, if any.
-                .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
-                .raw() // Give us uncompressed RGB.
-                .toBuffer()
-                .then(buffer => {
-                    myStreamDeck.fillImage(14, buffer)
-                })
-                .catch(err => {
-                    console.error(err)
-                })
-            obs.send('StopRecording');
+            SetStreamDeckButton(14, 'rec-off.png')
+            obs.send('StopRecording')
         }
     }
 })
@@ -461,79 +221,22 @@ myStreamDeck.on('up', keyIndex => {
 
 // Fired whenever an error is detected by the `node-hid` library.
 // Always add a listener for this event! If you don't, errors will be silently dropped.
-myStreamDeck.on('error', error => {
+myStreamDeck.on('err    or', error => {
     console.error(error)
 })
-
-
-
-
 
 
 for ( i=0; i<15; i++ ) {
     myStreamDeck.fillColor(i, 0, 0, 0)
 }
-sharp(path.resolve(__dirname, 'rec-off.png'))
-    .flatten() // Eliminate alpha channel, if any.
-    .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
-    .raw() // Give us uncompressed RGB.
-    .toBuffer()
-    .then(buffer => {
-        myStreamDeck.fillImage(14, buffer)
-    })
-    .catch(err => {
-        console.error(err)
-    })
 
+SetStreamDeckButton(14, 'rec-off.png')
+SetStreamDeckButton(3, 'beamer-folien.png')
+SetStreamDeckButton(4, 'beamer-signage.png')
+SetStreamDeckButton(0, 'vorheriger-off.png')
+SetStreamDeckButton(1, 'naechster.png')
 
-sharp(path.resolve(__dirname, 'beamer-folien.png'))
-    .flatten() // Eliminate alpha channel, if any.
-    .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
-    .raw() // Give us uncompressed RGB.
-    .toBuffer()
-    .then(buffer => {
-        myStreamDeck.fillImage(3, buffer)
-    })
-    .catch(err => {
-        console.error(err)
-    })
-sharp(path.resolve(__dirname, 'beamer-signage.png'))
-    .flatten() // Eliminate alpha channel, if any.
-    .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
-    .raw() // Give us uncompressed RGB.
-    .toBuffer()
-    .then(buffer => {
-        myStreamDeck.fillImage(4, buffer)
-    })
-    .catch(err => {
-        console.error(err)
-    })
-sharp(path.resolve(__dirname, 'vorheriger-off.png'))
-    .flatten() // Eliminate alpha channel, if any.
-    .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
-    .raw() // Give us uncompressed RGB.
-    .toBuffer()
-    .then(buffer => {
-        myStreamDeck.fillImage(0, buffer)
-    })
-    .catch(err => {
-        console.error(err)
-    })
-sharp(path.resolve(__dirname, 'naechster.png'))
-    .flatten() // Eliminate alpha channel, if any.
-    .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
-    .raw() // Give us uncompressed RGB.
-    .toBuffer()
-    .then(buffer => {
-        myStreamDeck.fillImage(1, buffer)
-    })
-    .catch(err => {
-        console.error(err)
-    })
-
-
-    init()
-
+init()
 
 
 async function init(){
@@ -547,40 +250,24 @@ async function init(){
     obs.send('SetSourceSettings', {
         'sourceName': "Name",
         'sourceSettings': { 'text' : myevent[0].name  }
-    });
+    })
     obs.send('SetSourceSettings', {
         'sourceName': "Session",
         'sourceSettings': { 'text' : myevent[0].session  }
-    });
-    sharp(path.resolve(__dirname, 'titel-active.png'))
-        .flatten() // Eliminate alpha channel, if any.
-        .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
-        .raw() // Give us uncompressed RGB.
-        .toBuffer()
-        .then(buffer => {
-            myStreamDeck.fillImage(10, buffer)
-        })
-        .catch(err => {
-            console.error(err)
-        })
+    })
+    SetStreamDeckButton(10, 'titel-active.png')
 
     Jimp.read(fileName)
         .then(function (image) {
-            loadedImage = image;
-            return Jimp.loadFont(Jimp.FONT_SANS_16_BLACK);
+            loadedImage = image
+            return Jimp.loadFont(Jimp.FONT_SANS_16_BLACK)
         })
         .then(function (font) {
             loadedImage.print(font, 10, 10, myevent[currentevent].name)
             loadedImage.print(font, 50, 50, myevent[currentevent].session)
-                .write(fileNameOut);
+                .write(fileNameOut)
         })
         .catch(function (err) {
-            console.error(err);
-        });
+            console.error(err)
+        })
 }
-
-
-
-
-
-
