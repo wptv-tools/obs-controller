@@ -1,14 +1,28 @@
 {
-  "name": "obs-websocket",
+  "name": "tv",
   "version": "1.0.0",
   "main": "index.js",
-  "dependencies": {
-    "obs-websocket-js": "^3.1.0"
-  },
   "scripts": {
-    "build": "rollup -c"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "keywords": [],
   "author": "",
   "license": "ISC",
+  "dependencies": {
+    "applest-atem": "^0.2.4",
+    "elgato-stream-deck": "^4.1.0",
+    "jimp": "^0.16.1",
+    "obs-websocket-js": "^4.0.3",
+    "sharp": "^0.29.2"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://staude@github.com/wptv-tools/obs-controller.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wptv-tools/obs-controller/issues"
+  },
+  "homepage": "https://github.com/wptv-tools/obs-controller#readme",
   "description": ""
 }
