@@ -36,7 +36,7 @@ function sleep(ms){
 
 // Set Button with Image on Stream Deck
 function SetStreamDeckButton(ButtonNo, ButtonImg) {
-    sharp(path.resolve(__dirname, ButtonImg))
+    sharp(path.resolve(__dirname + '/buttons', ButtonImg))
         .flatten() // Eliminate alpha channel, if any.
         .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
         .raw() // Give us uncompressed RGB.
@@ -50,11 +50,11 @@ function SetStreamDeckButton(ButtonNo, ButtonImg) {
 }
 
 function clean_buttons() {
-    SetStreamDeckButton(6, 'folie-speaker.png')
-    SetStreamDeckButton(7, 'speaker-folie.png')
-    SetStreamDeckButton(10, 'titel.png')
-    SetStreamDeckButton(11, 'folie.png')
-    SetStreamDeckButton(12, 'speaker.png')
+    SetStreamDeckButton(6, 'sc_slides_speaker_off.png')
+    SetStreamDeckButton(7, 'sc_speaker_slides_off.png')
+    SetStreamDeckButton(10, 'sc_titel_off.png')
+    SetStreamDeckButton(11, 'sc_slides_off.png')
+    SetStreamDeckButton(12, 'sc_speaker_off.png')
 }
 
 
@@ -63,30 +63,30 @@ obs.on('SwitchScenes', data => {
     clean_buttons()
     switch ( data['scene-name'] ) {
         case 'Speaker':
-            SetStreamDeckButton(12, 'speaker-active.png')
+            SetStreamDeckButton(12, 'sc_speaker_on.png')
             break
         case 'Titel':
-            SetStreamDeckButton(10, 'titel-active.png')
+            SetStreamDeckButton(10, 'sc_titel_on.png')
             break
         case 'Folien/Speaker':
-            SetStreamDeckButton(6, 'folie-speaker-active.png')
+            SetStreamDeckButton(6, 'sc_slides_speaker_on.png')
             break
         case 'Speaker/Folien':
-            SetStreamDeckButton(7, 'speaker-folie-active.png')
+            SetStreamDeckButton(7, 'sc_speaker_slides_on.png')
             break
         case 'Folien':
-            SetStreamDeckButton(11, 'folie-active.png')
+            SetStreamDeckButton(11, 'sc_slides_on.png')
             break
     }
 })
 
 obs.on('RecordingStopped', err => {
-    SetStreamDeckButton(14, 'rec-off.png')
+    SetStreamDeckButton(14, 'bt_recording_off.png')
     rec = 0
 })
 
 obs.on('RecordingStarted', err => {
-    SetStreamDeckButton(14, 'rec-on.png')
+    SetStreamDeckButton(14, 'bt_recording_on.png')
     rec = 1
 })
 
@@ -98,11 +98,11 @@ myStreamDeck.on('down', keyIndex => {
             currentevent--
         }
         if (currentevent == 0 ) {
-            SetStreamDeckButton(0, 'vorheriger-off.png')
+            SetStreamDeckButton(0, 'speaker_back_off.png')
         } else {
-            SetStreamDeckButton(0, 'vorheriger.png')
+            SetStreamDeckButton(0, 'speaker_back_on.png')
         }
-        SetStreamDeckButton(1, 'naechster.png')
+        SetStreamDeckButton(1, 'speaker_next_on.png')
 
         Jimp.read(fileName)
             .then(function (image) {
@@ -133,11 +133,11 @@ myStreamDeck.on('down', keyIndex => {
             currentevent++
         }
         if (currentevent == ( myevent.length -1) ) {
-            SetStreamDeckButton(1, 'naechster-off.png')
+            SetStreamDeckButton(1, 'speaker_next_off.png')
         } else {
-            SetStreamDeckButton(1, 'naechster.png')
+            SetStreamDeckButton(1, 'speaker_next_on.png')
         }
-        SetStreamDeckButton(0, 'vorheriger.png')
+        SetStreamDeckButton(0, 'speaker_back_on.png')
 
         Jimp.read(fileName)
             .then(function (image) {
@@ -170,7 +170,7 @@ myStreamDeck.on('down', keyIndex => {
             'scene-name': "Folien/Speaker"
         })
         clean_buttons()
-        SetStreamDeckButton(6, 'folie-speaker-active.png')
+        SetStreamDeckButton(6, 'sc_slides_speaker_on.png')
     }
 
     if (keyIndex == 7 ) {
@@ -178,7 +178,7 @@ myStreamDeck.on('down', keyIndex => {
             'scene-name': "Speaker/Folien"
         })
         clean_buttons()
-        SetStreamDeckButton(7, 'speaker-folie-active.png')
+        SetStreamDeckButton(7, 'sc_speaker_slides_on.png')
     }
 
     if (keyIndex == 10 ) {
@@ -186,14 +186,14 @@ myStreamDeck.on('down', keyIndex => {
             'scene-name': "Titel"
         })
         clean_buttons()
-        SetStreamDeckButton(10, 'titel-active.png')
+        SetStreamDeckButton(10, 'sc_titel_on.png')
     }
     if (keyIndex == 11 ) {
         obs.send('SetCurrentScene', {
             'scene-name': "Folien"
         })
         clean_buttons()
-        SetStreamDeckButton(11, 'folie-active.png')
+        SetStreamDeckButton(11, 'sc_slides_on.png')
     }
 
     if (keyIndex == 12 ) {
@@ -201,15 +201,15 @@ myStreamDeck.on('down', keyIndex => {
             'scene-name': "Speaker"
         })
         clean_buttons()
-        SetStreamDeckButton(12, 'speaker-active.png')
+        SetStreamDeckButton(12, 'sc_speaker_on.png')
     }
 
     if ( keyIndex == 14 ) {
         if ( rec == 0 ) {
-            SetStreamDeckButton(14, 'rec-on.png')
+            SetStreamDeckButton(14, 'bt_recording_on.png')
             obs.send('StartRecording')
         } else {
-            SetStreamDeckButton(14, 'rec-off.png')
+            SetStreamDeckButton(14, 'bt_recording_off.png')
             obs.send('StopRecording')
         }
     }
@@ -230,11 +230,11 @@ for ( i=0; i<15; i++ ) {
     myStreamDeck.fillColor(i, 0, 0, 0)
 }
 
-SetStreamDeckButton(14, 'rec-off.png')
-SetStreamDeckButton(3, 'beamer-folien.png')
-SetStreamDeckButton(4, 'beamer-signage.png')
-SetStreamDeckButton(0, 'vorheriger-off.png')
-SetStreamDeckButton(1, 'naechster.png')
+SetStreamDeckButton(14, 'bt_recording_off.png')
+SetStreamDeckButton(3, 'beamer_slides_off.png')
+SetStreamDeckButton(4, 'beamer_signage_off.png')
+SetStreamDeckButton(0, 'speaker_back_off.png')
+SetStreamDeckButton(1, 'speaker_next_off.png')
 
 init()
 
@@ -255,7 +255,7 @@ async function init(){
         'sourceName': "Session",
         'sourceSettings': { 'text' : myevent[0].session  }
     })
-    SetStreamDeckButton(10, 'titel-active.png')
+    SetStreamDeckButton(10, 'sc_titel_on.png')
 
     Jimp.read(fileName)
         .then(function (image) {
