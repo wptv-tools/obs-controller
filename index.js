@@ -6,15 +6,41 @@ const sharp = require('sharp')
 var Jimp = require("jimp");
 var fileName = 'test.png';
 var fileNameOut = 'out.png';
+var ATEM = require('applest-atem');
+var atem = new ATEM();
 const fs = require('fs');
 const {number} = require("sharp/lib/is");
 const myStreamDeck = openStreamDeck()
 const obs = new OBSWebSocket();
 obs.connect({ address: 'localhost:4444', password: '12345678' });
+atem.connect('192.168.11.240');
 var rec = 0
 var myevent
 var currentevent
 
+atem.on('stateChanged', function(err, state) {
+    //console.log(state.video.ME[0].programInput  ); // catch the ATEM state.
+    console.log( typeof (  state.video.ME[0].programInput  ));
+    if ( typeof (state.video.ME[0].programInput ) != "undefined" ) {
+        switch ( state.video.ME[0].programInput ) {
+            case 1:
+                obs.send('SetCurrentScene', {
+                    'scene-name': "Titel"
+                });
+                break;
+            case 2:
+                obs.send('SetCurrentScene', {
+                    'scene-name': "Folien"
+                });
+                break;
+            case 3:
+                obs.send('SetCurrentScene', {
+                    'scene-name': "Speaker"
+                });
+                break;
+        }
+    }
+});
 
 fs.readFile('event.json', (err, data) => {
     if (err) throw err;
@@ -375,6 +401,7 @@ myStreamDeck.on('down', keyIndex => {
             'scene-name': "Titel"
         });
         clean_buttons()
+        atem.changeProgramInput(1);
         sharp(path.resolve(__dirname, 'titel-active.png'))
             .flatten() // Eliminate alpha channel, if any.
             .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
@@ -392,6 +419,7 @@ myStreamDeck.on('down', keyIndex => {
             'scene-name': "Folien"
         });
         clean_buttons()
+        atem.changeProgramInput(2);
         sharp(path.resolve(__dirname, 'folie-active.png'))
             .flatten() // Eliminate alpha channel, if any.
             .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
@@ -410,6 +438,7 @@ myStreamDeck.on('down', keyIndex => {
             'scene-name': "Speaker"
         });
         clean_buttons()
+        atem.changeProgramInput(3);
         sharp(path.resolve(__dirname, 'speaker-active.png'))
             .flatten() // Eliminate alpha channel, if any.
             .resize(myStreamDeck.ICON_SIZE, myStreamDeck.ICON_SIZE) // Scale up/down to the right size, cropping if necessary.
@@ -578,9 +607,3 @@ async function init(){
             console.error(err);
         });
 }
-
-
-
-
-
-
