@@ -52,7 +52,7 @@ function SetStreamDeckButton(ButtonNo, ButtonImg) {
 function clean_buttons() {
     SetStreamDeckButton(6, 'sc_slides_speaker_off.png')
     SetStreamDeckButton(7, 'sc_speaker_slides_off.png')
-    SetStreamDeckButton(10, 'sc_titel_off.png')
+    SetStreamDeckButton(10, 'sc_title_off.png')
     SetStreamDeckButton(11, 'sc_slides_off.png')
     SetStreamDeckButton(12, 'sc_speaker_off.png')
 }
@@ -66,7 +66,7 @@ obs.on('SwitchScenes', data => {
             SetStreamDeckButton(12, 'sc_speaker_on.png')
             break
         case 'Titel':
-            SetStreamDeckButton(10, 'sc_titel_on.png')
+            SetStreamDeckButton(10, 'sc_title_on.png')
             break
         case 'Folien/Speaker':
             SetStreamDeckButton(6, 'sc_slides_speaker_on.png')
@@ -98,9 +98,9 @@ myStreamDeck.on('down', keyIndex => {
             currentevent--
         }
         if (currentevent == 0 ) {
-            SetStreamDeckButton(0, 'speaker_back_off.png')
+            SetStreamDeckButton(0, 'speaker_prev_off.png')
         } else {
-            SetStreamDeckButton(0, 'speaker_back_on.png')
+            SetStreamDeckButton(0, 'speaker_prev_on.png')
         }
         SetStreamDeckButton(1, 'speaker_next_on.png')
 
@@ -137,7 +137,7 @@ myStreamDeck.on('down', keyIndex => {
         } else {
             SetStreamDeckButton(1, 'speaker_next_on.png')
         }
-        SetStreamDeckButton(0, 'speaker_back_on.png')
+        SetStreamDeckButton(0, 'speaker_prev_on.png')
 
         Jimp.read(fileName)
             .then(function (image) {
@@ -186,7 +186,7 @@ myStreamDeck.on('down', keyIndex => {
             'scene-name': "Titel"
         })
         clean_buttons()
-        SetStreamDeckButton(10, 'sc_titel_on.png')
+        SetStreamDeckButton(10, 'sc_title_on.png')
     }
     if (keyIndex == 11 ) {
         obs.send('SetCurrentScene', {
@@ -233,7 +233,7 @@ for ( i=0; i<15; i++ ) {
 SetStreamDeckButton(14, 'bt_recording_off.png')
 SetStreamDeckButton(3, 'beamer_slides_off.png')
 SetStreamDeckButton(4, 'beamer_signage_off.png')
-SetStreamDeckButton(0, 'speaker_back_off.png')
+SetStreamDeckButton(0, 'speaker_prev_off.png')
 SetStreamDeckButton(1, 'speaker_next_off.png')
 
 init()
@@ -255,7 +255,9 @@ async function init(){
         'sourceName': "Session",
         'sourceSettings': { 'text' : myevent[0].session  }
     })
-    SetStreamDeckButton(10, 'sc_titel_on.png')
+    SetStreamDeckButton(10, 'sc_title_on.png')
+
+    SetStreamDeckButton(1, 'speaker_next_on.png')
 
     Jimp.read(fileName)
         .then(function (image) {
